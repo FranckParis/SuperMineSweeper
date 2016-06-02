@@ -20,5 +20,7 @@ public class SuperMineSweeper extends Application {
     public void start(Stage stage) throws Exception {
         MainFrame mf = new MainFrame(600, 600, 40, "SuperMineSweeper Deluxe Ultimate Edition v2.15.1.45");
         mf.display(stage);
+
+        //test
     }
 }
