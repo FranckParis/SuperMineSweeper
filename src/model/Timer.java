@@ -4,8 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author Francky
+ * Created by franck on 6/2/16.
  */
 public class Timer extends Thread {
     

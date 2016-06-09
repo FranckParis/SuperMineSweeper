@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- *
- * @author Francky
+ * Created by franck on 6/2/16.
  */
 public class GridModel {
     

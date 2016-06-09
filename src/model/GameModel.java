@@ -4,8 +4,7 @@ package model;
 import java.util.Observable;
 
 /**
- *
- * @author Franck
+ * Created by franck on 6/2/16.
  */
 public class GameModel extends Observable {
     
