@@ -1,228 +1,153 @@
+/*
 package view;
 
-import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import model.GameModel;
 
-import static java.awt.SystemColor.text;
+import java.awt.geom.Dimension2D;
+import java.util.Observable;
+import java.util.Observer;
 
-/**
- * Created by franck on 6/2/16.
- */
-public class MainFrame {
 
-    //Attributes
+public final class MainFrame implements Observer {
 
-    private int width;
-    private int height;
-    private String title;
-    private Grid grid;
+    public Grid grid;
+    public int timer;
 
-    private int timerValue;
-    private int minesLeftValue;
+    public MainFrame()
+    {
+        super();
 
-    private int gameStatus; // 0:no game, 1:game started, 2:win, 3:loose
+        build();
 
-    //Constructor
-
-    public MainFrame (int w, int h, int m, String s) {
-        this.width = w;
-        this.height = h;
-        this.title = s;
-
-        this.timerValue = 0;
-        this.minesLeftValue = m;
-        this.gameStatus = 0;
-
-        this.grid = new Grid();
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent arg0) {
+                super.windowClosing(arg0);
+                System.exit(0);
+            }
+        });
     }
 
-    //Methods
+    public void build()
+    {
+        //setTitle("Démineur");
+        this.timer =0;
+        //this.setLayout(new BorderLayout());
+        GameModel g = new GameModel();
+        g.addObserver(this);
+        this.grid = new Grid(9,9,10, new Dimension2D(40,40), g);
 
-    public BorderPane setTopBorder() {
-        BorderPane border = new BorderPane();
-        //border.setPrefWidth(this.width);
+        this.info = new JPanel();
+        time = new JLabel();
+        flags = new JLabel();
 
-        HBox hboxLeft = new HBox();
-        HBox hboxRight = new HBox();
-        HBox hboxCenter = new HBox();
+        this.text = new JPanel();
+        textf = new JLabel();
+        textt = new JLabel();
 
-        hboxLeft.setPadding(new Insets(10, 12, 10, 12));
-        hboxLeft.setSpacing(10);
-        hboxLeft.setStyle("-fx-background-color: #336699;");
-        hboxRight.setPadding(new Insets(10, 12, 10, 12));
-        hboxRight.setSpacing(10);
-        hboxRight.setStyle("-fx-background-color: #336699;");
-        hboxCenter.setPadding(new Insets(2, 12, 2, 12));
-        hboxCenter.setStyle("-fx-background-color: #336699;");
+        this.center = new JPanel();
 
-        Button buttonEasy = new Button("Facile");
-        buttonEasy.setPrefSize(70, 20);
+        time.setText("0");
+        flags.setText("10");
 
-        Button buttonMedium = new Button("Moyen");
-        buttonMedium.setPrefSize(70, 20);
+        textf.setText("Flags");
+        textt.setText("Timer");
 
-        Button buttonHard = new Button("Difficile");
-        buttonHard.setPrefSize(70, 20);
 
-        Image imgSmiley;
-        ImageView ivSmiley = new ImageView();
-        switch(this.gameStatus){
-            case 0:
-                imgSmiley = new Image("/ressources/sleep.png");
-                ivSmiley.setImage(imgSmiley);
-                break;
-            case 1:
-                imgSmiley = new Image("/ressources/normal.png");
-                ivSmiley.setImage(imgSmiley);
-                break;
-            case 2:
-                imgSmiley = new Image("/ressources/win.png");
-                ivSmiley.setImage(imgSmiley);
-                break;
-            case 3:
-                imgSmiley = new Image("/ressources/loose.png");
-                ivSmiley.setImage(imgSmiley);
-                break;
+        info.add(time, FlowLayout.LEFT);
+        info.add(flags, FlowLayout.CENTER);
+
+        text.add(textt, FlowLayout.LEFT);
+        text.add(textf, FlowLayout.CENTER);
+
+        this.menubar = new JMenuBar();
+        JMenu menu = new JMenu("Nouvelle partie");
+        menubar.add(menu);
+
+        JMenuItem menuItem1 = new JMenuItem("Niveau Facile",MouseEvent.BUTTON1);
+        menuItem1.addActionListener((ActionEvent e) -> {
+            this.timer = 0;
+            grid.removeAll();
+            GameModel gm = new GameModel();
+            gm.addObserver(this);
+            grid.build(9, 9, 10, new Dimension(40,40), gm);
+            flags.setText("10");
+            add(grid,BorderLayout.SOUTH);
+            this.pack();
+            validate();
+        });
+        menu.add(menuItem1);
+
+
+        JMenuItem menuItem2 = new JMenuItem("Niveau Moyen",MouseEvent.BUTTON1);
+        menuItem2.addActionListener((ActionEvent e) -> {
+            this.timer = 0;
+            grid.removeAll();
+            GameModel gm = new GameModel();
+            gm.addObserver(this);
+            grid.build(16, 16, 40, new Dimension(35,35), gm);
+            flags.setText("40");
+            add(grid,BorderLayout.SOUTH);
+            this.pack();
+            validate();
+        });
+        menu.add(menuItem2);
+
+        JMenuItem menuItem3 = new JMenuItem("Niveau Difficile",MouseEvent.BUTTON1);
+        menuItem3.addActionListener((ActionEvent e) -> {
+            this.timer = 0;
+            grid.removeAll();
+            GameModel gm = new GameModel();
+            gm.addObserver(this);
+            grid.build(16, 30, 99, new Dimension(30,30), gm);
+            flags.setText("99");
+            add(grid,BorderLayout.SOUTH);
+            this.pack();
+            validate();
+        });
+        menu.add(menuItem3);
+        flags.setVisible(true);
+        time.setVisible(true);
+        textt.setVisible(true);
+        textf.setVisible(true);
+
+        this.add(menubar,BorderLayout.NORTH);
+
+        center.add(text, BorderLayout.NORTH);
+        center.add(info, BorderLayout.SOUTH);
+
+        this.add(center, BorderLayout.CENTER);
+
+        this.add(this.grid,BorderLayout.SOUTH);
+        this.pack();
+        this.setVisible(true);
+
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        GameModel gm = (GameModel) o;
+        if(gm.getGameStatus() == 1){
+            JOptionPane.showMessageDialog(this, "Bien joué ! Rejouez !");
         }
-        ivSmiley.setFitWidth(45);
-        ivSmiley.setPreserveRatio(true);
-        ivSmiley.setSmooth(true);
-        ivSmiley.setCache(true);
+        else if(gm.getGameStatus() == 2){
+            JOptionPane.showMessageDialog(this, "Partie perdue, réessayez ! ", "Défaite!", JOptionPane.ERROR_MESSAGE);
+        }
+        if(gm.getVal()>this.timer+1){
+            gm.setRunning(false);
+        }
+        this.timer = gm.getVal();
 
-        TextField gridWidth = new TextField("9");
-        gridWidth.setPrefSize(40, 20);
+        flags.setText(Integer.toString(gm.getNbFlagsRemaining()));
+        time.setText(Integer.toString(gm.getVal()));
 
-        TextField gridHeight = new TextField("9");
-        gridHeight.setPrefSize(40, 20);
-
-        TextField mines = new TextField("10");
-        mines.setPrefSize(40, 20);
-
-        Button buttonPlay = new Button("Jouer !");
-        buttonPlay.setPrefSize(70, 20);
-
-        //actions
-
-        buttonEasy.setOnAction(e -> {
-            mines.setText("10");
-            gridWidth.setText("9");
-            gridHeight.setText("9");
-        });
-
-        buttonMedium.setOnAction(e -> {
-            mines.setText("40");
-            gridWidth.setText("16");
-            gridHeight.setText("16");
-        });
-
-        buttonHard.setOnAction(e -> {
-            mines.setText("99");
-            gridWidth.setText("30");
-            gridHeight.setText("16");
-        });
-
-        buttonPlay.setOnAction(e -> {
-            this.gameStatus = 1;
-        });
-
-        hboxLeft.getChildren().addAll(buttonEasy, buttonMedium, buttonHard);
-        hboxRight.getChildren().addAll(gridWidth, gridHeight, mines, buttonPlay);
-        hboxCenter.getChildren().addAll(ivSmiley);
-
-        border.setLeft(hboxLeft);
-        border.setRight(hboxRight);
-        border.setCenter(hboxCenter);
-
-        return border;
-    }
-
-    public GridPane setPlate(){
-        GridPane plate = new GridPane();
-
-        return plate;
     }
 
 
-    public BorderPane setBottomBorder() {
-        BorderPane border = new BorderPane();
-        //border.setPrefWidth(this.width);
+    @Override
+    public void update(Observable o, Object arg) {
 
-        HBox hboxLeft = new HBox();
-        HBox hboxRight = new HBox();
-        HBox hboxCenter = new HBox();
-
-        hboxLeft.setPadding(new Insets(3, 0, 3, 60));
-        hboxRight.setPadding(new Insets(3, 60, 3, 0));
-        hboxCenter.setPadding(new Insets(0, 0, 0, 0));
-
-        Image imgMine = new Image("/ressources/bomb.png");
-        ImageView ivMine = new ImageView();
-        ivMine.setImage(imgMine);
-        ivMine.setFitWidth(15);
-        ivMine.setPreserveRatio(true);
-        ivMine.setSmooth(true);
-        ivMine.setCache(true);
-        Label minesLeft = new Label(" : "+this.minesLeftValue);
-
-        Image imgTime = new Image("/ressources/timer.png");
-        ImageView ivTime = new ImageView();
-        ivTime.setImage(imgTime);
-        ivTime.setFitWidth(15);
-        ivTime.setPreserveRatio(true);
-        ivTime.setSmooth(true);
-        ivTime.setCache(true);
-        Label time = new Label(" : "+this.timerValue);
-
-        hboxLeft.getChildren().addAll(ivMine, minesLeft);
-        hboxRight.getChildren().addAll(ivTime, time);
-        hboxCenter.getChildren().addAll();
-
-        border.setLeft(hboxLeft);
-        border.setRight(hboxRight);
-        border.setCenter(hboxCenter);
-
-        return border;
-    }
-
-
-    public void display (Stage stage){
-
-        stage.setTitle(this.title);
-        /*stage.setWidth(this.width);
-        stage.setHeight(this.height);*/
-
-        //Root
-        Group root = new Group();
-        Scene scene = new Scene(root);
-        scene.setFill(Color.GREY);
-
-
-        BorderPane screen = new BorderPane();
-        BorderPane topBorder = setTopBorder();
-        BorderPane bottomBorder = setBottomBorder();
-
-        GridPane plate = setPlate();
-
-        screen.setTop(topBorder);
-        if(this.gameStatus != 0) screen.setBottom(bottomBorder);
-        screen.setCenter(plate);
-
-
-        root.getChildren().add(screen);
-
-        //Adding scene
-        stage.setScene(scene);
-
-        //Showing scene
-        stage.show();
     }
 }
+
+*/
